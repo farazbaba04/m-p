@@ -355,7 +355,6 @@ function loadPosts(){
             let div = document.createElement("div");
             div.className = "card";
 
-            // Yahan humne reply section ko post ke andar hi fix kar diya hai
             div.innerHTML=`
             <div class="post-header">
                 <b>${post.name}</b> <span class="post-type">${post.type}</span>
@@ -365,25 +364,24 @@ function loadPosts(){
             <span class="status ${post.status==="Solved"?"solved":"pending"}">${post.status}</span>
             
             <div class="button-group">
-                <button class="like" onclick="likePost('${id}',${post.likes})">👍 ${post.likes}</button>
-                <button onclick="replyBox('${id}')">💬 Reply</button>
+                <button class="like" onclick="likePost('${id}',${post.likes})">👍 Like (${post.likes})</button>
                 ${currentUser?.email === adminEmail ? `
                 <button class="admin" onclick="deletePost('${id}')">🗑️ Delete</button>
                 <button onclick="markSolved('${id}')">✅ Mark Solved</button>
                 `:``}
             </div>
             
-            <div id="reply_${id}" class="reply-section" style="display:none;">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="text" id="replyInput_${id}" placeholder="Write a reply..." style="margin:0;">
-                    <button onclick="sendReply('${id}')" style="margin:0; white-space:nowrap;">Send</button>
-                </div>
+            <div class="reply-section">
                 <div id="replyList_${id}"></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <input type="text" id="replyInput_${id}" placeholder="Write a comment..." style="margin:0; flex:1;">
+                    <button onclick="sendReply('${id}')" style="margin:0; white-space:nowrap;">Comment</button>
+                </div>
             </div>
             `;
 
             postsDiv.appendChild(div);
-            // Har post ke load hote hi uske replies ko bhi background mein load kar lo
+            // Har post ke comments foran load honge
             loadReplies(id);
         });
     });
@@ -402,17 +400,6 @@ window.deletePost = async(id)=>{
 // MARK SOLVED
 window.markSolved = async(id)=>{
     await updateDoc(doc(db,"posts",id), {status: "Solved"});
-};
-
-// TOGGLE REPLY BOX
-window.replyBox = (id)=>{
-    let replySection = document.getElementById("reply_"+id);
-    // Ab ye function sirf us dabbe ko show ya hide karega
-    if(replySection.style.display === "none"){
-        replySection.style.display = "block";
-    } else {
-        replySection.style.display = "none";
-    }
 };
 
 // SEND REPLY
