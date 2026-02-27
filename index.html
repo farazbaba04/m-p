@@ -12,22 +12,41 @@
     body {
         margin: 0;
         font-family: 'Inter', system-ui, sans-serif;
-        background: #f4f6f8;
+        background: #f8f9fa; /* Thora light background taake orange pop kare */
         color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh; /* Footer ko neechay rakhne ke liye */
     }
 
+    /* ORANGE THEME HEADER */
     header {
-        background: linear-gradient(135deg, #1e3a8a, #2563eb);
+        background: linear-gradient(135deg, #f97316, #ea580c); /* Vibrant Orange Gradient */
         color: white;
         padding: 15px 30px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 10px rgba(234, 88, 12, 0.2);
     }
 
-    .logo {
-        font-size: 22px;
+    .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Logo Styling */
+    .logo-img {
+        height: 45px; 
+        width: auto;
+        border-radius: 8px;
+        background: white; /* Taa-ke logo clear nazar aye */
+        padding: 3px;
+    }
+
+    .logo-text {
+        font-size: 24px;
         font-weight: 700;
         letter-spacing: 0.5px;
     }
@@ -36,6 +55,9 @@
         max-width: 800px;
         margin: 30px auto;
         padding: 0 20px;
+        flex: 1; /* Content area ko stretch karne ke liye */
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .card {
@@ -43,14 +65,15 @@
         padding: 25px;
         border-radius: 12px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         border: 1px solid #eaedf1;
+        border-top: 4px solid #ea580c; /* Har card ke upar ek orange line */
     }
 
     h3 {
         margin-top: 0;
-        color: #1e3a8a;
-        font-weight: 600;
+        color: #ea580c; /* Orange Heading */
+        font-weight: 700;
     }
 
     input, textarea, select {
@@ -66,9 +89,9 @@
     }
 
     input:focus, textarea:focus, select:focus {
-        border-color: #2563eb;
+        border-color: #ea580c;
         outline: none;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
     }
 
     textarea {
@@ -76,54 +99,40 @@
         min-height: 80px;
     }
 
+    /* ORANGE BUTTONS */
     button {
-        background: #2563eb;
+        background: #ea580c;
         color: white;
         padding: 10px 18px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
         margin: 5px 5px 5px 0;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 14px;
         transition: all 0.2s ease;
     }
 
     button:hover {
-        background: #1d4ed8;
+        background: #c2410c;
         transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(194, 65, 12, 0.2);
     }
 
-    .logout {
-        background: #ef4444;
-        margin: 0;
-    }
-
-    .logout:hover {
-        background: #dc2626;
-    }
-
-    .like {
-        background: #10b981;
-    }
-
-    .like:hover {
-        background: #059669;
-    }
-
-    .admin {
-        background: #ef4444;
-    }
-
-    .admin:hover {
-        background: #dc2626;
-    }
+    .logout { background: #ef4444; margin: 0; }
+    .logout:hover { background: #dc2626; }
+    
+    .like { background: #f97316; } /* Light orange for like */
+    .like:hover { background: #ea580c; }
+    
+    .admin { background: #ef4444; }
+    .admin:hover { background: #dc2626; }
 
     .status {
         padding: 4px 10px;
         border-radius: 20px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 700;
         color: white;
         display: inline-block;
         margin-bottom: 15px;
@@ -152,11 +161,12 @@
 
     .post-type {
         font-size: 12px;
-        color: #2563eb;
-        font-weight: 600;
-        background: #eff6ff;
-        padding: 3px 8px;
+        color: #ea580c;
+        font-weight: 700;
+        background: #fff7ed; /* Very light orange background */
+        padding: 4px 10px;
         border-radius: 6px;
+        border: 1px solid #ffedd5;
     }
 
     .post-content {
@@ -174,11 +184,11 @@
 
     .reply {
         margin-left: 15px;
-        background: #f8fafc;
+        background: #fff7ed; /* Light orange for comments */
         padding: 12px;
         border-radius: 8px;
         margin-top: 10px;
-        border-left: 3px solid #cbd5e1;
+        border-left: 4px solid #ea580c;
     }
 
     small {
@@ -193,13 +203,32 @@
         flex-wrap: wrap;
         gap: 5px;
     }
+
+    /* FOOTER STYLING */
+    footer {
+        text-align: center;
+        padding: 20px;
+        background: #111827;
+        color: #9ca3af;
+        font-size: 14px;
+        margin-top: 40px;
+    }
+
+    footer b {
+        color: #f97316; /* Name in orange */
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logo">🏢 M&P Central IT</div>
+    <div class="brand-group">
+        <img src="m&P.png" alt="M&P Logo" class="logo-img">
+        <div class="logo-text">M&P Central IT</div>
+    </div>
     <button class="logout" id="logoutBtn" style="display:none;">Logout</button>
 </header>
 
@@ -214,7 +243,7 @@
         <input type="text" id="location" placeholder="Location (e.g. Lahore Office)">
         <div style="margin-top: 10px;">
             <button id="loginBtn">Login</button>
-            <button id="registerBtn" style="background: #475569;">Register</button>
+            <button id="registerBtn" style="background: #475569; box-shadow: none;">Register</button>
         </div>
     </div>
 
@@ -235,6 +264,10 @@
 
     </div>
 </div>
+
+<footer>
+    Ye web app <b>Faraz sheikh IT</b> ney bnaya hai 🚀
+</footer>
 
 <script type="module">
 
@@ -381,7 +414,6 @@ function loadPosts(){
             `;
 
             postsDiv.appendChild(div);
-            // Har post ke comments foran load honge
             loadReplies(id);
         });
     });
