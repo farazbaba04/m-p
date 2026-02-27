@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Company Connect Pro</title>
+<title>Company Connect PRO</title>
 
 <style>
 body{margin:0;font-family:Segoe UI;background:#f3f4f6;}
@@ -13,20 +13,21 @@ header{background:#111827;color:white;padding:15px;text-align:center;font-size:2
 input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;}
 button{background:#2563eb;color:white;padding:7px 14px;border:none;border-radius:8px;cursor:pointer;margin:5px 3px;}
 .reply{margin-left:20px;background:#f9fafb;padding:10px;border-radius:8px;margin-top:8px;}
-.admin{background:red;}
 .like{background:green;}
-small{color:gray;}
+.admin{background:red;}
+.status{padding:3px 8px;border-radius:6px;font-size:12px;color:white;}
+.pending{background:orange;}
+.solved{background:green;}
 .logout{float:right;background:#dc2626;}
-.status{padding:3px 8px;border-radius:6px;font-size:12px;}
-.pending{background:orange;color:white;}
-.solved{background:green;color:white;}
+small{color:gray;}
 </style>
 </head>
+
 <body>
 
 <header>
 🏢 Company Connect PRO
-<button class="logout" onclick="logout()">Logout</button>
+<button class="logout" id="logoutBtn" style="display:none;">Logout</button>
 </header>
 
 <div class="container">
@@ -38,8 +39,8 @@ small{color:gray;}
 <input type="text" id="name" placeholder="Full Name">
 <input type="text" id="designation" placeholder="Designation">
 <input type="text" id="location" placeholder="Location">
-<button onclick="register()">Register</button>
-<button onclick="login()">Login</button>
+<button id="registerBtn">Register</button>
+<button id="loginBtn">Login</button>
 </div>
 
 <div id="appSection" style="display:none;">
@@ -52,7 +53,7 @@ small{color:gray;}
 <option value="Fun Fact">Fun Fact</option>
 </select>
 <textarea id="content" placeholder="Write something..."></textarea>
-<button onclick="createPost()">Post</button>
+<button id="postBtn">Post</button>
 </div>
 
 <div id="posts"></div>
@@ -60,170 +61,200 @@ small{color:gray;}
 </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+<script type="module">
 
-<script>
+// 🔥 IMPORTS (Version fixed to match your screenshot 10.12.0)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, addDoc, collection, onSnapshot, query, orderBy, updateDoc, deleteDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// 🔥 YOUR CONFIG (Added exactly from your screenshot)
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
+  apiKey: "AIzaSyCy6ytqB1uQD8mlJjrmH9gHCuZh9hHDDaQ",
+  authDomain: "mnp-29c95.firebaseapp.com",
+  projectId: "mnp-29c95",
+  storageBucket: "mnp-29c95.firebasestorage.app",
+  messagingSenderId: "314074925404",
+  appId: "1:314074925404:web:4c5d74346690b0ff905999",
+  measurementId: "G-YP7O7YTXPN"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let currentUser = {};
-let isAdmin = false;
+// 👑 SET ADMIN EMAIL (Added missing quotes)
+const adminEmail = "faraz.nadeem@mulphilog.com";
 
-// 👑 SET YOUR ADMIN EMAIL HERE
-const adminEmail = "admin@company.com";
+let currentUserData = {};
+let currentUser = null;
 
-function register(){
-let email = emailInput();
-let password = passwordInput();
-let name = nameInput();
-let designation = designationInput();
-let location = locationInput();
+// REGISTER
+document.getElementById('registerBtn').onclick = async ()=>{
+    let emailVal = document.getElementById('email').value;
+    let passVal = document.getElementById('password').value;
 
-auth.createUserWithEmailAndPassword(email,password)
-.then(user=>{
-db.collection("users").doc(user.user.uid).set({
-email,name,designation,location
+    try {
+        let userCred = await createUserWithEmailAndPassword(auth, emailVal, passVal);
+        await setDoc(doc(db, "users", userCred.user.uid), {
+            name: document.getElementById('name').value,
+            designation: document.getElementById('designation').value,
+            location: document.getElementById('location').value,
+            email: emailVal
+        });
+        alert("Registered successfully!");
+    } catch (error) {
+        alert(error.message);
+    }
+};
+
+// LOGIN
+document.getElementById('loginBtn').onclick = async ()=>{
+    let emailVal = document.getElementById('email').value;
+    let passVal = document.getElementById('password').value;
+    try {
+        await signInWithEmailAndPassword(auth, emailVal, passVal);
+    } catch (error) {
+        alert(error.message);
+    }
+};
+
+// AUTH STATE
+onAuthStateChanged(auth, async(user)=>{
+    if(user){
+        currentUser = user;
+        document.getElementById('authBox').style.display = "none";
+        document.getElementById('appSection').style.display = "block";
+        document.getElementById('logoutBtn').style.display = "inline-block";
+
+        let docSnap = await getDoc(doc(db,"users",user.uid));
+        if (docSnap.exists()) {
+            currentUserData = docSnap.data();
+        }
+
+        loadPosts();
+    }else{
+        document.getElementById('authBox').style.display = "block";
+        document.getElementById('appSection').style.display = "none";
+        document.getElementById('logoutBtn').style.display = "none";
+    }
 });
-}).catch(err=>alert(err.message));
-}
 
-function login(){
-auth.signInWithEmailAndPassword(emailInput(),passwordInput())
-.catch(err=>alert(err.message));
-}
+// LOGOUT
+document.getElementById('logoutBtn').onclick = ()=> signOut(auth);
 
-auth.onAuthStateChanged(user=>{
-if(user){
-document.getElementById("authBox").style.display="none";
-document.getElementById("appSection").style.display="block";
+// CREATE POST
+document.getElementById('postBtn').onclick = async()=>{
+    let contentVal = document.getElementById('content').value;
+    let typeVal = document.getElementById('type').value;
 
-if(user.email===adminEmail){ isAdmin=true; }
+    if(!contentVal) return;
 
-db.collection("users").doc(user.uid).get().then(doc=>{
-currentUser = doc.data();
-});
+    await addDoc(collection(db,"posts"),{
+        content: contentVal,
+        type: typeVal,
+        name: currentUserData.name || "Unknown",
+        designation: currentUserData.designation || "",
+        location: currentUserData.location || "",
+        likes: 0,
+        status: "Pending",
+        time: new Date()
+    });
+    document.getElementById('content').value = "";
+};
 
-loadPosts();
-}else{
-document.getElementById("authBox").style.display="block";
-document.getElementById("appSection").style.display="none";
-}
-});
-
-function logout(){ auth.signOut(); }
-
-function createPost(){
-let content=document.getElementById("content").value;
-let type=document.getElementById("type").value;
-if(!content)return;
-
-db.collection("posts").add({
-content,type,
-name:currentUser.name,
-designation:currentUser.designation,
-location:currentUser.location,
-likes:0,
-status:"Pending",
-time:new Date()
-});
-document.getElementById("content").value="";
-}
-
+// LOAD POSTS REALTIME
 function loadPosts(){
-db.collection("posts").orderBy("time","desc")
-.onSnapshot(snapshot=>{
-document.getElementById("posts").innerHTML="";
-snapshot.forEach(doc=>{
-let post=doc.data();
-let postId=doc.id;
+    const q = query(collection(db,"posts"), orderBy("time","desc"));
 
-let div=document.createElement("div");
-div.className="card";
+    onSnapshot(q,(snapshot)=>{
+        const postsDiv = document.getElementById('posts');
+        postsDiv.innerHTML = "";
+        
+        snapshot.forEach(docSnap=>{
+            let post = docSnap.data();
+            let id = docSnap.id;
 
-div.innerHTML=`
-<b>${post.name}</b> (${post.designation} - ${post.location})<br>
-<b>Type:</b> ${post.type}<br>
-${post.content}<br>
-<span class="status ${post.status==='Solved'?'solved':'pending'}">${post.status}</span>
-<br>
-<button class="like" onclick="likePost('${postId}',${post.likes})">👍 ${post.likes}</button>
-<button onclick="showReply('${postId}')">Reply</button>
-${isAdmin?`<button class="admin" onclick="deletePost('${postId}')">Delete</button>
-<button onclick="updateStatus('${postId}')">Mark Solved</button>`:''}
-<div id="replies_${postId}"></div>
-`;
+            let div = document.createElement("div");
+            div.className = "card";
 
-document.getElementById("posts").appendChild(div);
+            div.innerHTML=`
+            <b>${post.name}</b> (${post.designation} - ${post.location})<br>
+            <b>Type:</b> ${post.type}<br>
+            ${post.content}<br>
+            <span class="status ${post.status==="Solved"?"solved":"pending"}">${post.status}</span><br>
+            <button class="like" onclick="likePost('${id}',${post.likes})">👍 ${post.likes}</button>
+            <button onclick="replyBox('${id}')">Reply</button>
+            ${currentUser?.email === adminEmail ? `
+            <button class="admin" onclick="deletePost('${id}')">Delete</button>
+            <button onclick="markSolved('${id}')">Mark Solved</button>
+            `:``}
+            <div id="reply_${id}"></div>
+            `;
 
-loadReplies(postId);
-});
-});
+            postsDiv.appendChild(div);
+            loadReplies(id);
+        });
+    });
 }
 
-function likePost(id,currentLikes){
-db.collection("posts").doc(id).update({likes:currentLikes+1});
-}
+// LIKE
+window.likePost = async(id, likes)=>{
+    await updateDoc(doc(db,"posts",id), {likes: likes+1});
+};
 
-function deletePost(id){
-db.collection("posts").doc(id).delete();
-}
+// DELETE
+window.deletePost = async(id)=>{
+    await deleteDoc(doc(db,"posts",id));
+};
 
-function updateStatus(id){
-db.collection("posts").doc(id).update({status:"Solved"});
-}
+// MARK SOLVED
+window.markSolved = async(id)=>{
+    await updateDoc(doc(db,"posts",id), {status: "Solved"});
+};
 
-function showReply(postId){
-let box=document.getElementById("replies_"+postId);
-box.innerHTML+=`
-<textarea id="reply_${postId}" placeholder="Write reply..."></textarea>
-<button onclick="sendReply('${postId}')">Submit</button>
-`;
-}
+// REPLY BOX
+window.replyBox = (id)=>{
+    document.getElementById("reply_"+id).innerHTML=`
+    <textarea id="replyInput_${id}" placeholder="Write reply..."></textarea>
+    <button onclick="sendReply('${id}')">Send</button>
+    <div id="replyList_${id}"></div>
+    `;
+};
 
-function sendReply(postId){
-let text=document.getElementById("reply_"+postId).value;
-if(!text)return;
+// SEND REPLY
+window.sendReply = async(id)=>{
+    let text = document.getElementById("replyInput_"+id).value;
+    if(!text) return;
 
-db.collection("posts").doc(postId).collection("replies").add({
-text,
-name:currentUser.name,
-time:new Date()
-});
-}
+    await addDoc(collection(db,"posts",id,"replies"),{
+        text: text,
+        name: currentUserData.name || "Unknown",
+        time: new Date()
+    });
+    document.getElementById("replyInput_"+id).value = "";
+};
 
+// LOAD REPLIES
 function loadReplies(postId){
-db.collection("posts").doc(postId).collection("replies")
-.orderBy("time")
-.onSnapshot(snapshot=>{
-let box=document.getElementById("replies_"+postId);
-box.innerHTML="";
-snapshot.forEach(doc=>{
-let r=doc.data();
-box.innerHTML+=`
-<div class="reply">
-<b>${r.name}</b><br>
-${r.text}<br>
-<small>${r.time.toDate().toLocaleString()}</small>
-</div>`;
-});
-});
+    const q = query(collection(db,"posts",postId,"replies"), orderBy("time"));
+    onSnapshot(q,(snap)=>{
+        let box = document.getElementById("replyList_"+postId);
+        if(!box) return;
+        box.innerHTML = "";
+        snap.forEach(docSnap=>{
+            let r = docSnap.data();
+            box.innerHTML+=`
+            <div class="reply">
+            <b>${r.name}</b><br>
+            ${r.text}<br>
+            <small>${r.time.toDate().toLocaleString()}</small>
+            </div>`;
+        });
+    });
 }
-
-function emailInput(){return document.getElementById("email").value;}
-function passwordInput(){return document.getElementById("password").value;}
-function nameInput(){return document.getElementById("name").value;}
-function designationInput(){return document.getElementById("designation").value;}
-function locationInput(){return document.getElementById("location").value;}
 
 </script>
 </body>
