@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>M&P Connect | Team Hub</title>
+<title>M&P Connect | Team Hub & Support</title>
 
 <style>
-    /* Google Fonts: Montserrat for Logo, Inter for Body */
+    /* Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap');
 
     :root {
         --accent-orange: #f97316; 
         --accent-dark: #ea580c;
+        --complaint-red: #ef4444; /* Red for complaints */
         --bg-color: #f3f4f6;
         --card-bg: #ffffff;
         --text-main: #1f2937;
@@ -31,7 +32,7 @@
         -webkit-font-smoothing: antialiased;
     }
 
-    /* HEADER STYLING */
+    /* HEADER */
     header {
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
@@ -47,18 +48,9 @@
         z-index: 100;
     }
 
-    .brand-group {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .logo-img {
-        height: 42px; 
-        width: auto;
-        border-radius: 8px;
-    }
-
+    .brand-group { display: flex; align-items: center; gap: 12px; }
+    .logo-img { height: 42px; width: auto; border-radius: 8px; }
+    
     .logo-text {
         font-family: 'Montserrat', sans-serif;
         font-size: 22px;
@@ -88,9 +80,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .card:hover {
-        box-shadow: 0 15px 35px rgba(249, 115, 22, 0.08);
-    }
+    .card:hover { box-shadow: 0 15px 35px rgba(249, 115, 22, 0.08); }
 
     h3 {
         margin-top: 0;
@@ -121,10 +111,8 @@
         background: white;
     }
 
-    textarea {
-        resize: vertical;
-        min-height: 100px;
-    }
+    optgroup { font-weight: 700; color: var(--text-main); }
+    textarea { resize: vertical; min-height: 100px; }
 
     /* BUTTONS */
     button {
@@ -140,10 +128,7 @@
         box-sizing: border-box;
     }
 
-    button:hover {
-        background: var(--accent-dark);
-        transform: translateY(-1px);
-    }
+    button:hover { background: var(--accent-dark); transform: translateY(-1px); }
 
     .logout { background: #ef4444; }
     .logout:hover { background: #dc2626; }
@@ -167,9 +152,17 @@
         letter-spacing: 0.5px;
     }
 
-    /* Updated Status Colors for Social Vibe */
-    .pending { background: #3b82f6; } /* Blue for New */
-    .solved { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } /* Gold/Orange for Highlighted */
+    /* Status Colors */
+    .status-new { background: #3b82f6; } 
+    .status-highlighted { background: #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); } 
+    .status-pending { background: #ef4444; animation: pulse 2s infinite; } /* Red for complaints */
+    .status-solved { background: #10b981; }
+
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+        70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
 
     /* POST STYLES */
     .post-header {
@@ -178,25 +171,22 @@
         margin-bottom: 12px;
     }
 
-    .post-header b {
-        font-size: 16px;
-        color: var(--text-main);
-    }
-
-    .post-meta {
-        font-size: 13px;
-        color: var(--text-muted);
-        margin-top: 4px;
-    }
-
+    .post-header b { font-size: 16px; color: var(--text-main); }
+    .post-meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    
     .post-type {
-        font-size: 11px;
+        font-size: 10px;
         color: var(--accent-dark);
         font-weight: 700;
         background: #ffedd5;
         padding: 4px 8px;
         border-radius: 6px;
         margin-left: 8px;
+    }
+
+    .post-type.complaint-tag {
+        color: #b91c1c;
+        background: #fee2e2;
     }
 
     .post-content {
@@ -207,20 +197,11 @@
         white-space: pre-wrap; 
     }
 
-    .button-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 15px;
-    }
+    .button-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
 
     /* REPLIES */
-    .reply-section {
-        margin-top: 20px;
-        padding-top: 15px;
-        border-top: 1px dashed #cbd5e1;
-    }
-
+    .reply-section { margin-top: 20px; padding-top: 15px; border-top: 1px dashed #cbd5e1; }
+    
     .reply {
         margin-left: 15px;
         background: #f9fafb;
@@ -230,34 +211,12 @@
         border-left: 3px solid var(--accent-orange);
     }
 
-    .reply b {
-        font-size: 14px;
-        color: var(--text-main);
-    }
+    .reply b { font-size: 14px; color: var(--text-main); }
+    small { color: #9ca3af; font-size: 11px; display: block; margin-top: 6px; }
 
-    small {
-        color: #9ca3af;
-        font-size: 11px;
-        display: block;
-        margin-top: 6px;
-    }
-
-    .reply-input-wrapper {
-        display: flex;
-        gap: 10px;
-        margin-top: 15px;
-        align-items: center;
-    }
-
-    .reply-input-wrapper input {
-        margin: 0;
-        flex: 1;
-    }
-
-    .reply-input-wrapper button {
-        margin: 0;
-        white-space: nowrap;
-    }
+    .reply-input-wrapper { display: flex; gap: 10px; margin-top: 15px; align-items: center; }
+    .reply-input-wrapper input { margin: 0; flex: 1; }
+    .reply-input-wrapper button { margin: 0; white-space: nowrap; }
 
     /* FOOTER */
     footer {
@@ -268,60 +227,20 @@
         font-size: 14px;
         margin-top: 50px;
     }
+    footer b { color: var(--accent-orange); font-weight: 600; }
 
-    footer b {
-        color: var(--accent-orange);
-        font-weight: 600;
-    }
-
-    /* RESPONSIVE MEDIA QUERIES FOR MOBILE */
+    /* MOBILE RESPONSIVE */
     @media (max-width: 600px) {
-        header {
-            flex-direction: column;
-            padding: 15px;
-            gap: 12px;
-        }
-
-        .logo-text {
-            font-size: 20px;
-        }
-
-        .card {
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .button-group {
-            flex-direction: column;
-        }
-
-        .button-group button {
-            width: 100%;
-            margin-right: 0;
-        }
-
-        .reply-input-wrapper {
-            flex-direction: column;
-        }
-
-        .reply-input-wrapper button {
-            width: 100%;
-        }
-
-        .reply {
-            margin-left: 0; 
-        }
-
-        #authBox > div {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        #authBox > div button {
-            width: 100%;
-            margin: 0;
-        }
+        header { flex-direction: column; padding: 15px; gap: 12px; }
+        .logo-text { font-size: 20px; }
+        .card { padding: 20px; border-radius: 12px; }
+        .button-group { flex-direction: column; }
+        .button-group button { width: 100%; margin-right: 0; }
+        .reply-input-wrapper { flex-direction: column; }
+        .reply-input-wrapper button { width: 100%; }
+        .reply { margin-left: 0; }
+        #authBox > div { display: flex; flex-direction: column; gap: 10px; }
+        #authBox > div button { width: 100%; margin: 0; }
     }
 </style>
 </head>
@@ -339,7 +258,7 @@
 <div class="container">
 
     <div class="card" id="authBox">
-        <h3>Join the Team Hub 👋</h3>
+        <h3>Join the Hub & IT Portal 👋</h3>
         <input type="email" id="email" placeholder="Corporate Email">
         <input type="password" id="password" placeholder="Password">
         <input type="text" id="name" placeholder="Full Name">
@@ -354,16 +273,22 @@
     <div id="appSection" style="display:none;">
 
         <div class="card">
-            <h3>What's on your mind? 🎈</h3>
+            <h3>Share or Get Support 🚀</h3>
             <select id="type">
-                <option value="🎉 Fun Fact">🎉 Fun Fact</option>
-                <option value="😂 Joke of the Day">😂 Joke of the Day</option>
-                <option value="🎂 Birthday Wish">🎂 Birthday Wish</option>
-                <option value="👏 Appreciation">👏 Team Appreciation</option>
-                <option value="☕ Chit-Chat">☕ Casual Chit-Chat</option>
+                <optgroup label="🎈 Social & Fun">
+                    <option value="🎉 Fun Fact">🎉 Fun Fact</option>
+                    <option value="😂 Joke of the Day">😂 Joke of the Day</option>
+                    <option value="🎂 Birthday Wish">🎂 Birthday Wish</option>
+                    <option value="👏 Appreciation">👏 Team Appreciation</option>
+                    <option value="☕ Chit-Chat">☕ Casual Chit-Chat</option>
+                </optgroup>
+                <optgroup label="🛠️ Work & Support">
+                    <option value="🚨 IT Complaint">🚨 IT Complaint</option>
+                    <option value="💡 System Suggestion">💡 System Suggestion</option>
+                </optgroup>
             </select>
-            <textarea id="content" placeholder="Share a joke, wish a happy birthday, or just say hi to the team!"></textarea>
-            <button id="postBtn" style="width: 100%;">Share with Team</button>
+            <textarea id="content" placeholder="Share a joke, wish someone, or log an IT issue..."></textarea>
+            <button id="postBtn" style="width: 100%;">Post to Portal</button>
         </div>
 
         <div id="posts"></div>
@@ -377,14 +302,12 @@
 
 <script type="module">
 
-// 🔥 IMPORTS 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, addDoc, collection, onSnapshot, query, orderBy, updateDoc, deleteDoc } 
 from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// 🔥 YOUR CONFIG 
 const firebaseConfig = {
   apiKey: "AIzaSyCy6ytqB1uQD8mlJjrmH9gHCuZh9hHDDaQ",
   authDomain: "mnp-29c95.firebaseapp.com",
@@ -399,7 +322,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 👑 SET ADMIN EMAIL
 const adminEmail = "faraz.nadeem@mulphilog.com";
 
 let currentUserData = {};
@@ -409,7 +331,6 @@ let currentUser = null;
 document.getElementById('registerBtn').onclick = async ()=>{
     let emailVal = document.getElementById('email').value;
     let passVal = document.getElementById('password').value;
-
     try {
         let userCred = await createUserWithEmailAndPassword(auth, emailVal, passVal);
         await setDoc(doc(db, "users", userCred.user.uid), {
@@ -418,21 +339,15 @@ document.getElementById('registerBtn').onclick = async ()=>{
             location: document.getElementById('location').value,
             email: emailVal
         });
-        alert("Account Created Successfully! Welcome to the Hub.");
-    } catch (error) {
-        alert(error.message);
-    }
+        alert("Account Created Successfully! Welcome.");
+    } catch (error) { alert(error.message); }
 };
 
 // LOGIN
 document.getElementById('loginBtn').onclick = async ()=>{
-    let emailVal = document.getElementById('email').value;
-    let passVal = document.getElementById('password').value;
     try {
-        await signInWithEmailAndPassword(auth, emailVal, passVal);
-    } catch (error) {
-        alert(error.message);
-    }
+        await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+    } catch (error) { alert(error.message); }
 };
 
 // AUTH STATE
@@ -444,10 +359,7 @@ onAuthStateChanged(auth, async(user)=>{
         document.getElementById('logoutBtn').style.display = "block";
 
         let docSnap = await getDoc(doc(db,"users",user.uid));
-        if (docSnap.exists()) {
-            currentUserData = docSnap.data();
-        }
-
+        if (docSnap.exists()) currentUserData = docSnap.data();
         loadPosts();
     }else{
         document.getElementById('authBox').style.display = "block";
@@ -456,15 +368,17 @@ onAuthStateChanged(auth, async(user)=>{
     }
 });
 
-// LOGOUT
 document.getElementById('logoutBtn').onclick = ()=> signOut(auth);
 
 // CREATE POST
 document.getElementById('postBtn').onclick = async()=>{
     let contentVal = document.getElementById('content').value;
     let typeVal = document.getElementById('type').value;
-
     if(!contentVal) return;
+
+    // Smart Status System
+    let isWorkRelated = typeVal.includes("Complaint") || typeVal.includes("Suggestion");
+    let initialStatus = isWorkRelated ? "Pending" : "New";
 
     await addDoc(collection(db,"posts"),{
         content: contentVal,
@@ -473,13 +387,13 @@ document.getElementById('postBtn').onclick = async()=>{
         designation: currentUserData.designation || "",
         location: currentUserData.location || "",
         likes: 0,
-        status: "New", // Default status changed to New
+        status: initialStatus,
         time: new Date()
     });
     document.getElementById('content').value = "";
 };
 
-// LOAD POSTS REALTIME
+// LOAD POSTS
 function loadPosts(){
     const q = query(collection(db,"posts"), orderBy("time","desc"));
 
@@ -490,24 +404,40 @@ function loadPosts(){
         snapshot.forEach(docSnap=>{
             let post = docSnap.data();
             let id = docSnap.id;
+            let isComplaint = post.type.includes("Complaint");
 
             let div = document.createElement("div");
             div.className = "card";
+            if(isComplaint) div.style.borderTopColor = "var(--complaint-red)"; // Red border for complaints
+
+            // Determine Status CSS Class
+            let statusClass = "status-new";
+            if(post.status === "Highlighted") statusClass = "status-highlighted";
+            if(post.status === "Pending") statusClass = "status-pending";
+            if(post.status === "Solved") statusClass = "status-solved";
+
+            // Determine Admin Buttons
+            let adminActions = "";
+            if(currentUser?.email === adminEmail) {
+                adminActions = `<button class="admin" onclick="deletePost('${id}')">🗑️ Delete</button>`;
+                if(isComplaint || post.type.includes("Suggestion")){
+                    adminActions += `<button onclick="updateStatus('${id}', 'Solved')" style="background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0;">✅ Mark Solved</button>`;
+                } else {
+                    adminActions += `<button onclick="updateStatus('${id}', 'Highlighted')" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">⭐ Highlight</button>`;
+                }
+            }
 
             div.innerHTML=`
             <div class="post-header">
-                <b>${post.name}</b> <span class="post-type">${post.type}</span>
+                <b>${post.name}</b> <span class="post-type ${isComplaint ? 'complaint-tag' : ''}">${post.type}</span>
                 <div class="post-meta">${post.designation} - ${post.location}</div>
             </div>
             <div class="post-content">${post.content}</div>
-            <span class="status ${post.status==="Highlighted"?"solved":"pending"}">${post.status}</span>
+            <span class="status ${statusClass}">${post.status}</span>
             
             <div class="button-group">
                 <button class="like" onclick="likePost('${id}',${post.likes})">👍 Like (${post.likes})</button>
-                ${currentUser?.email === adminEmail ? `
-                <button class="admin" onclick="deletePost('${id}')">🗑️ Delete</button>
-                <button onclick="markSolved('${id}')" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">⭐ Highlight</button>
-                `:``}
+                ${adminActions}
             </div>
             
             <div class="reply-section">
@@ -525,35 +455,20 @@ function loadPosts(){
     });
 }
 
-// LIKE
-window.likePost = async(id, likes)=>{
-    await updateDoc(doc(db,"posts",id), {likes: likes+1});
-};
+// INTERACTIONS
+window.likePost = async(id, likes) => await updateDoc(doc(db,"posts",id), {likes: likes+1});
+window.deletePost = async(id) => await deleteDoc(doc(db,"posts",id));
+window.updateStatus = async(id, newStatus) => await updateDoc(doc(db,"posts",id), {status: newStatus});
 
-// DELETE
-window.deletePost = async(id)=>{
-    await deleteDoc(doc(db,"posts",id));
-};
-
-// MARK HIGHLIGHTED (Kept function name as markSolved to preserve old DB logic)
-window.markSolved = async(id)=>{
-    await updateDoc(doc(db,"posts",id), {status: "Highlighted"});
-};
-
-// SEND REPLY
 window.sendReply = async(id)=>{
     let text = document.getElementById("replyInput_"+id).value;
     if(!text) return;
-
     await addDoc(collection(db,"posts",id,"replies"),{
-        text: text,
-        name: currentUserData.name || "Unknown",
-        time: new Date()
+        text: text, name: currentUserData.name || "Unknown", time: new Date()
     });
     document.getElementById("replyInput_"+id).value = "";
 };
 
-// LOAD REPLIES
 function loadReplies(postId){
     const q = query(collection(db,"posts",postId,"replies"), orderBy("time"));
     onSnapshot(q,(snap)=>{
@@ -562,12 +477,7 @@ function loadReplies(postId){
         box.innerHTML = "";
         snap.forEach(docSnap=>{
             let r = docSnap.data();
-            box.innerHTML+=`
-            <div class="reply">
-                <b>${r.name}</b>
-                <div style="margin: 5px 0 0 0; color: #4b5563;">${r.text}</div>
-                <small>${r.time.toDate().toLocaleString()}</small>
-            </div>`;
+            box.innerHTML+=`<div class="reply"><b>${r.name}</b><div style="margin: 5px 0 0 0; color: #4b5563;">${r.text}</div><small>${r.time.toDate().toLocaleString()}</small></div>`;
         });
     });
 }
