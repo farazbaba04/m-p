@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Company Connect Pro</title>
+
+<style>
+body{margin:0;font-family:Segoe UI;background:#f3f4f6;}
+header{background:#111827;color:white;padding:15px;text-align:center;font-size:20px;}
+.container{max-width:1000px;margin:auto;padding:20px;}
+.card{background:white;padding:20px;border-radius:12px;margin-bottom:15px;box-shadow:0 3px 8px rgba(0,0,0,0.1);}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:1px solid #ccc;}
+button{background:#2563eb;color:white;padding:7px 14px;border:none;border-radius:8px;cursor:pointer;margin:5px 3px;}
+.reply{margin-left:20px;background:#f9fafb;padding:10px;border-radius:8px;margin-top:8px;}
+.admin{background:red;}
+.like{background:green;}
+small{color:gray;}
+.logout{float:right;background:#dc2626;}
+.status{padding:3px 8px;border-radius:6px;font-size:12px;}
+.pending{background:orange;color:white;}
+.solved{background:green;color:white;}
+</style>
+</head>
+<body>
+
+<header>
+🏢 Company Connect PRO
+<button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+<div class="card" id="authBox">
+<h3>Login / Register</h3>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<input type="text" id="name" placeholder="Full Name">
+<input type="text" id="designation" placeholder="Designation">
+<input type="text" id="location" placeholder="Location">
+<button onclick="register()">Register</button>
+<button onclick="login()">Login</button>
+</div>
+
+<div id="appSection" style="display:none;">
+
+<div class="card">
+<h3>Create Post</h3>
+<select id="type">
+<option value="Problem">Problem</option>
+<option value="Suggestion">Suggestion</option>
+<option value="Fun Fact">Fun Fact</option>
+</select>
+<textarea id="content" placeholder="Write something..."></textarea>
+<button onclick="createPost()">Post</button>
+</div>
+
+<div id="posts"></div>
+
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
+<script>
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = {};
+let isAdmin = false;
+
+// 👑 SET YOUR ADMIN EMAIL HERE
+const adminEmail = "admin@company.com";
+
+function register(){
+let email = emailInput();
+let password = passwordInput();
+let name = nameInput();
+let designation = designationInput();
+let location = locationInput();
+
+auth.createUserWithEmailAndPassword(email,password)
+.then(user=>{
+db.collection("users").doc(user.user.uid).set({
+email,name,designation,location
+});
+}).catch(err=>alert(err.message));
+}
+
+function login(){
+auth.signInWithEmailAndPassword(emailInput(),passwordInput())
+.catch(err=>alert(err.message));
+}
+
+auth.onAuthStateChanged(user=>{
+if(user){
+document.getElementById("authBox").style.display="none";
+document.getElementById("appSection").style.display="block";
+
+if(user.email===adminEmail){ isAdmin=true; }
+
+db.collection("users").doc(user.uid).get().then(doc=>{
+currentUser = doc.data();
+});
+
+loadPosts();
+}else{
+document.getElementById("authBox").style.display="block";
+document.getElementById("appSection").style.display="none";
+}
+});
+
+function logout(){ auth.signOut(); }
+
+function createPost(){
+let content=document.getElementById("content").value;
+let type=document.getElementById("type").value;
+if(!content)return;
+
+db.collection("posts").add({
+content,type,
+name:currentUser.name,
+designation:currentUser.designation,
+location:currentUser.location,
+likes:0,
+status:"Pending",
+time:new Date()
+});
+document.getElementById("content").value="";
+}
+
+function loadPosts(){
+db.collection("posts").orderBy("time","desc")
+.onSnapshot(snapshot=>{
+document.getElementById("posts").innerHTML="";
+snapshot.forEach(doc=>{
+let post=doc.data();
+let postId=doc.id;
+
+let div=document.createElement("div");
+div.className="card";
+
+div.innerHTML=`
+<b>${post.name}</b> (${post.designation} - ${post.location})<br>
+<b>Type:</b> ${post.type}<br>
+${post.content}<br>
+<span class="status ${post.status==='Solved'?'solved':'pending'}">${post.status}</span>
+<br>
+<button class="like" onclick="likePost('${postId}',${post.likes})">👍 ${post.likes}</button>
+<button onclick="showReply('${postId}')">Reply</button>
+${isAdmin?`<button class="admin" onclick="deletePost('${postId}')">Delete</button>
+<button onclick="updateStatus('${postId}')">Mark Solved</button>`:''}
+<div id="replies_${postId}"></div>
+`;
+
+document.getElementById("posts").appendChild(div);
+
+loadReplies(postId);
+});
+});
+}
+
+function likePost(id,currentLikes){
+db.collection("posts").doc(id).update({likes:currentLikes+1});
+}
+
+function deletePost(id){
+db.collection("posts").doc(id).delete();
+}
+
+function updateStatus(id){
+db.collection("posts").doc(id).update({status:"Solved"});
+}
+
+function showReply(postId){
+let box=document.getElementById("replies_"+postId);
+box.innerHTML+=`
+<textarea id="reply_${postId}" placeholder="Write reply..."></textarea>
+<button onclick="sendReply('${postId}')">Submit</button>
+`;
+}
+
+function sendReply(postId){
+let text=document.getElementById("reply_"+postId).value;
+if(!text)return;
+
+db.collection("posts").doc(postId).collection("replies").add({
+text,
+name:currentUser.name,
+time:new Date()
+});
+}
+
+function loadReplies(postId){
+db.collection("posts").doc(postId).collection("replies")
+.orderBy("time")
+.onSnapshot(snapshot=>{
+let box=document.getElementById("replies_"+postId);
+box.innerHTML="";
+snapshot.forEach(doc=>{
+let r=doc.data();
+box.innerHTML+=`
+<div class="reply">
+<b>${r.name}</b><br>
+${r.text}<br>
+<small>${r.time.toDate().toLocaleString()}</small>
+</div>`;
+});
+});
+}
+
+function emailInput(){return document.getElementById("email").value;}
+function passwordInput(){return document.getElementById("password").value;}
+function nameInput(){return document.getElementById("name").value;}
+function designationInput(){return document.getElementById("designation").value;}
+function locationInput(){return document.getElementById("location").value;}
+
+</script>
+</body>
+</html>
