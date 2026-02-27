@@ -355,6 +355,7 @@ function loadPosts(){
             let div = document.createElement("div");
             div.className = "card";
 
+            // Yahan humne reply section ko post ke andar hi fix kar diya hai
             div.innerHTML=`
             <div class="post-header">
                 <b>${post.name}</b> <span class="post-type">${post.type}</span>
@@ -372,11 +373,17 @@ function loadPosts(){
                 `:``}
             </div>
             
-            <div id="reply_${id}" class="reply-section" style="display:none;"></div>
+            <div id="reply_${id}" class="reply-section" style="display:none;">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="text" id="replyInput_${id}" placeholder="Write a reply..." style="margin:0;">
+                    <button onclick="sendReply('${id}')" style="margin:0; white-space:nowrap;">Send</button>
+                </div>
+                <div id="replyList_${id}"></div>
+            </div>
             `;
 
             postsDiv.appendChild(div);
-            // Modified to only load replies once, we call it here but we'll render it inside replyBox area
+            // Har post ke load hote hi uske replies ko bhi background mein load kar lo
             loadReplies(id);
         });
     });
@@ -400,17 +407,9 @@ window.markSolved = async(id)=>{
 // TOGGLE REPLY BOX
 window.replyBox = (id)=>{
     let replySection = document.getElementById("reply_"+id);
+    // Ab ye function sirf us dabbe ko show ya hide karega
     if(replySection.style.display === "none"){
         replySection.style.display = "block";
-        replySection.innerHTML=`
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="text" id="replyInput_${id}" placeholder="Write a reply..." style="margin:0;">
-            <button onclick="sendReply('${id}')" style="margin:0; white-space:nowrap;">Send</button>
-        </div>
-        <div id="replyList_${id}"></div>
-        `;
-        // Trigger loading replies visually
-        loadReplies(id);
     } else {
         replySection.style.display = "none";
     }
@@ -434,7 +433,7 @@ function loadReplies(postId){
     const q = query(collection(db,"posts",postId,"replies"), orderBy("time"));
     onSnapshot(q,(snap)=>{
         let box = document.getElementById("replyList_"+postId);
-        if(!box) return; // If reply box isn't open yet, skip rendering
+        if(!box) return; 
         box.innerHTML = "";
         snap.forEach(docSnap=>{
             let r = docSnap.data();
